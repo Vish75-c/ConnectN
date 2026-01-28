@@ -1,7 +1,9 @@
-import axois from 'axois';
+import axios from "axios";
 
 import { HOST } from '@/utils/constants';
 
-const apiClient=axois.create({
+const apiClient=axios.create({
     baseURL:HOST,
 })
+
+export default apiClient;

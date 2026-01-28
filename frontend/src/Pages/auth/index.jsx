@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Background from './../../assets/login2.png'
 import { toast } from "sonner";
+import apiClient from "@/lib/api";
+import { SIGNUP_ROUTE } from "@/utils/constants";
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,7 +30,8 @@ const Auth = () => {
   const handleLogin = async () => {};
   const handleSignUp = async () => {
     if(validateSignup()){
-        alert('done');
+        const response=await apiClient.post(SIGNUP_ROUTE,{email,password})
+        console.log(response);
     }
   };
   return (
