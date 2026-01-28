@@ -3,35 +3,68 @@ import Victory from "./../../assets/victory.svg";
 import { Tabs, TabsTrigger, TabsList, TabsContent } from "@radix-ui/react-tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Background from './../../assets/login2.png'
+import Background from "./../../assets/login2.png";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import apiClient from "@/lib/api";
-import { SIGNUP_ROUTE } from "@/utils/constants";
+import { LOGIN_ROUTE, SIGNUP_ROUTE } from "@/utils/constants";
 const Auth = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  const validateSignup=()=>{
-    if(!email.length){
-        toast.error("Email is Required")
-        return false;
+  const validateLogin = () => {
+    if (!email.length) {
+      toast.error("Email is Required");
+      return false;
     }
-    if(!password.length){
-        toast.error("password is Required");
-        return false;
-    }
-    if(password!=confirmPassword){
-        toast.error("password and Confirm password should be same");
-        return false;
+    if (!password.length) {
+      toast.error("password is Required");
+      return false;
     }
     return true;
   };
-  const handleLogin = async () => {};
+  const validateSignup = () => {
+    if (!email.length) {
+      toast.error("Email is Required");
+      return false;
+    }
+    if (!password.length) {
+      toast.error("password is Required");
+      return false;
+    }
+    if (password != confirmPassword) {
+      toast.error("password and Confirm password should be same");
+      return false;
+    }
+    return true;
+  };
+  const handleLogin = async () => {
+    if (validateLogin()) {
+      const response = await apiClient.post(
+        LOGIN_ROUTE,
+        { email, password },
+        { withCredentials: true },
+      );
+      if(response.data._id){
+    
+        if(response.data.profileSetup)navigate('/chat');
+        else navigate('/profile')
+      }
+      console.log(response);
+    }
+  };
   const handleSignUp = async () => {
-    if(validateSignup()){
-        const response=await apiClient.post(SIGNUP_ROUTE,{email,password})
-        console.log(response);
+    if (validateSignup()) {
+      const response = await apiClient.post(
+        SIGNUP_ROUTE,
+        { email, password },
+        { withCredentials: true },
+      );
+      console.log(response);
+      if (response.status === 201) {
+        navigate("/profile");
+      }
     }
   };
   return (
@@ -48,7 +81,7 @@ const Auth = () => {
             </p>
           </div>
           <div className="flex  items-center justify-center w-full">
-            <Tabs className="w-3/4 grid">
+            <Tabs className="w-3/4 grid" defaultValue="login">
               <TabsList className="grid grid-cols-2 bg-transparent rounded-none w-full">
                 <TabsTrigger
                   value="login"
@@ -75,7 +108,7 @@ const Auth = () => {
                   placeholder="Password"
                   type="password"
                   className="rounded-full p-6"
-                  value={email}
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 ></Input>
                 <Button className="rounded-full p-6" onClick={handleLogin}>
@@ -111,10 +144,9 @@ const Auth = () => {
               </TabsContent>
             </Tabs>
           </div>
-          
         </div>
         <div className="hidden xl:flex justify-center items-center">
-            <img src={Background} alt='background-img' className='h-full' />
+          <img src={Background} alt="background-img" className="h-full" />
         </div>
       </div>
     </div>
