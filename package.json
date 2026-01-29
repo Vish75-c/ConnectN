@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "axois": "^0.0.1-security"
+    "axois": "^0.0.1-security",
+    "zustand": "^5.0.10"
   }
 }
