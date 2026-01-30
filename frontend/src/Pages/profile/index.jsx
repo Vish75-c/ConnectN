@@ -1,25 +1,82 @@
 import { useAppStore } from "@/store";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { IoMdAdd, IoMdArrowBack, IoMdTrash } from "react-icons/io";
 import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
 import { getColor, colors } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import apiClient from "@/lib/api";
+import { useRef } from "react";
+import { UPDATE_PROFILE_ROUTE } from "@/utils/constants";
 const Profile = () => {
   const navigate = useNavigate();
-  const { userInfo } = useAppStore();
+  const { userInfo, setUserInfo } = useAppStore();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [image, setImage] = useState(null);
   const [hovered, setHovered] = useState(false);
   const [selectedColor, setSelectedColor] = useState(0);
+  const fileInputRef = useRef(null);
+  // useEffect(()=>{
+  //   if(userInfo.pro){
+  //     setFirstName(userInfo.firstName);
+  //     setLastName(userInfo.lastName);
+  //     setSelectedColor(userInfo.color);
+  //   }
+  // },[userInfo])
 
+  const validateProfile = () => {
+    if (!firstName) {
+      toast.error("First Name is required");
+      return false;
+    }
+    if (!lastName) {
+      toast.error("Last Name is required");
+      return false;
+    }
+    return true;
+  };
+  const saveChanges = async () => {
+    if (validateProfile()) {
+      try {
+        const response = await apiClient.post(
+          UPDATE_PROFILE_ROUTE,
+          { firstName, lastName, color: selectedColor },
+          { withCredentials: true },
+        );
+
+        if (response.status === 200) {
+          if (response.data) {
+            setUserInfo(response.data);
+            toast.success("Profile Updated Successfully");
+            navigate("/chat");
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const handleFileInputClick = () => {
+    fileInputRef.current.click();
+  };
+  const handleImageChange = async (event) => {
+   
+    const file=event.target.files[0];
+    console.log(file);
+    if(file){
+      const formData=new FormData();
+      
+    }
+  };
+  const handleDeleteImage = async () => {};
   return (
     <div className="bg-[#1b1c24] min-h-screen flex items-center justify-center">
       <div className="flex flex-col gap-10 w-[80vw] md:w-max">
-
         {/* Back button */}
         <IoMdArrowBack
           onClick={() => navigate(-1)}
@@ -27,7 +84,6 @@ const Profile = () => {
         />
 
         <div className="grid grid-cols-2 gap-10">
-
           {/* Avatar */}
           <div
             className="relative flex items-center justify-center"
@@ -47,16 +103,17 @@ const Profile = () => {
                 />
               ) : (
                 <div className="uppercase text-white text-5xl font-semibold">
-                  {firstName
-                    ? firstName[0]
-                    : userInfo?.email?.[0]}
+                  {firstName ? firstName[0] : userInfo?.email?.[0]}
                 </div>
               )}
             </Avatar>
 
             {/* Hover overlay */}
             {hovered && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full cursor-pointer">
+              <div
+                className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full cursor-pointer"
+                onClick={image ? handleDeleteImage : handleFileInputClick}
+              >
                 {image ? (
                   <IoMdTrash className="text-white text-3xl" />
                 ) : (
@@ -64,11 +121,18 @@ const Profile = () => {
                 )}
               </div>
             )}
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={handleImageChange}
+              name="profile-image"
+              accept=".png,.jpg,.jpeg,.svg,.webp"
+            />
           </div>
 
           {/* Inputs */}
           <div className="flex flex-col gap-5 text-white justify-center">
-
             <Input
               disabled
               value={userInfo?.email || ""}
@@ -98,9 +162,7 @@ const Profile = () => {
                   className={`h-8 w-8 rounded-full cursor-pointer 
                   transition-all duration-300 ${color}
                   ${
-                    selectedColor === index
-                      ? "outline outline-2 outline-white"
-                      : ""
+                    selectedColor === index ? " outline-2 outline-white/50" : ""
                   }`}
                 />
               ))}
@@ -109,10 +171,12 @@ const Profile = () => {
         </div>
 
         {/* Save Button */}
-        <Button className="h-14 w-full rounded-lg bg-purple-700 hover:bg-purple-800 transition-all duration-300 text-white font-semibold">
+        <Button
+          onClick={saveChanges}
+          className="h-14 w-full rounded-lg bg-purple-700 hover:bg-purple-800 transition-all duration-300 text-white font-semibold"
+        >
           Save Changes
         </Button>
-
       </div>
     </div>
   );

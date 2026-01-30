@@ -43,6 +43,7 @@ export const signup = async (req, res) => {
 export const login=async (req,res)=>{
   try {
     console.log("visited");
+
     const {email,password}=req.body;
     if(!email||!password)return res.status(400).send("Email and Password is required");
 
@@ -51,6 +52,7 @@ export const login=async (req,res)=>{
     if(!user)return res.status(404).send("User Not found");
     
     const isMatch=await bcrypt.compare(password,user.password);
+    console.log(isMatch);
     if(isMatch){
       res.cookie("jwt", createToken(email, user._id), {
       maxAge: cookieMaxAge,
@@ -77,6 +79,20 @@ export const getUserInfo=async(req,res)=>{
       return response.status(404).send("User not found");
     }
     res.status(200).json(userData);
+  } catch (error) {
+    return res.status(401).send("User with the given id not found");
+  }
+}
+
+export const updateProfile=async(req,res)=>{
+  try {
+    const userId=req.user;
+    const {firstName,lastName,color}=req.body;
+    if(!firstName||!lastName){
+      return response.status(400).send("Firstname lastname and color is required");
+    }
+    const userData=await User.findByIdAndUpdate(userId,{firstName,lastName,color,profileSetup:true},{new:true,runValidators:true});
+    return res.status(200).json(userData);
   } catch (error) {
     return res.status(401).send("User with the given id not found");
   }

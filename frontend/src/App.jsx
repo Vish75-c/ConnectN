@@ -55,7 +55,7 @@ const App = () => {
         </AuthRoute>
         }/>
       <Route path='/chat' element={<PrivateRoute><Chat/></PrivateRoute>}/>
-      <Route path='/profile' element={<PrivateRoute><Profile/></PrivateRoute>}/>
+      <Route path='/profile' element={<Profile/>}/>
       <Route path='*' element={<Navigate to='/auth'/>}/>
     </Routes>
     </BrowserRouter>
