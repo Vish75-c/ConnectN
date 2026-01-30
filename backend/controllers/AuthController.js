@@ -68,3 +68,16 @@ export const login=async (req,res)=>{
     return res.status(500).send("Internal Server Error");
   }
 }
+
+export const getUserInfo=async(req,res)=>{
+  try {
+    // console.log(req.user,"Visited");
+    const userData=await User.findById(req.user);
+    if(!userData){
+      return response.status(404).send("User not found");
+    }
+    res.status(200).json(userData);
+  } catch (error) {
+    return res.status(401).send("User with the given id not found");
+  }
+}
