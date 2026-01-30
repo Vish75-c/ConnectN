@@ -12,7 +12,7 @@ const app=express();
 const port=process.env.port||3001;
 const database=process.env.DATABASE_URL;
 app.use(
-  cors({
+  cors({ 
     origin: "http://localhost:5173", // Vite frontend
     credentials: true,               // REQUIRED for cookies/JWT
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

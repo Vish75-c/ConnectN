@@ -30,7 +30,7 @@ const App = () => {
      
       if(response.status===200&&response.data._id){
         setUserInfo(response.data);
-        console.log(userInfo);
+        console.log(response.data,userInfo);
       }else{
         setUserInfo(undefined);
       }

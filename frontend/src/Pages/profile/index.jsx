@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { IoMdAdd, IoMdArrowBack, IoMdTrash } from "react-icons/io";
 import * as Avatar from "@radix-ui/react-avatar";
 import { toast } from "sonner";
-
+import { HOST } from "@/utils/constants";
 import { useAppStore } from "@/store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { getColor, colors } from "@/lib/utils";
 import apiClient from "@/lib/api";
 import {
   ADD_PROFILE_IMAGE_ROUTE,
+  REMOVE_PROFILE_IMAGE_ROUTE,
   UPDATE_PROFILE_ROUTE,
 } from "@/utils/constants";
 
@@ -23,18 +24,23 @@ const Profile = () => {
   const [image, setImage] = useState(null);
   const [hovered, setHovered] = useState(false);
   const [selectedColor, setSelectedColor] = useState(0);
-
   const fileInputRef = useRef(null);
 
   /* ---------------- INIT FROM STORE ---------------- */
   useEffect(() => {
-    if (userInfo) {
-      setFirstName(userInfo.firstName || "");
-      setLastName(userInfo.lastName || "");
-      setSelectedColor(userInfo.color ?? 0);
-      setImage(userInfo.image || null);
-    }
-  }, [userInfo]);
+  if (!userInfo) return;
+
+  if (userInfo.profileSetup) {
+    setFirstName(userInfo.firstName || "");
+    setLastName(userInfo.lastName || "");
+    setSelectedColor(userInfo.color ?? 0);
+  }
+
+  if (userInfo.image) {
+    setImage(`${HOST}/${userInfo.image}`);
+  }
+}, [userInfo]);
+
 
   /* ---------------- VALIDATION ---------------- */
   const validateProfile = () => {
@@ -116,8 +122,19 @@ const Profile = () => {
   };
 
   const handleDeleteImage = async () => {
+    try {
+      const response=await apiClient.delete(REMOVE_PROFILE_IMAGE_ROUTE,{withCredentials:true});
+      if(response.status===200){
+        setUserInfo({...userInfo,image:null});
+        toast.success("Image Removed Successfully")
+        setImage(null);
+      }
+     
+    } catch (error) {
+      console.log(error);
+    }
     // implement if backend supports delete
-    setImage(null);
+    
   };
 
   /* ---------------- UI ---------------- */

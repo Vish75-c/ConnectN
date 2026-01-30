@@ -73,6 +73,7 @@ export const login = async (req, res) => {
 export const getUserInfo = async (req, res) => {
   try {
     const user = await User.findById(req.user);
+    console.log(user);
     if (!user) return res.status(404).send("User not found");
     return res.status(200).json(user);
   } catch {
@@ -127,6 +128,7 @@ export const addProfileImage = async (req, res) => {
 export const removeProfileImage = async (req, res) => {
   try {
     const user = await User.findById(req.user);
+    console.log("visited");
     if (!user || !user.image)
       return res.status(404).send("Image not found");
 
