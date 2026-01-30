@@ -1,15 +1,19 @@
-import { useAppStore } from "@/store";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Input } from "@/components/ui/input";
 import { IoMdAdd, IoMdArrowBack, IoMdTrash } from "react-icons/io";
-import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
-import { getColor, colors } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import * as Avatar from "@radix-ui/react-avatar";
 import { toast } from "sonner";
+
+import { useAppStore } from "@/store";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { getColor, colors } from "@/lib/utils";
 import apiClient from "@/lib/api";
-import { useRef } from "react";
-import { UPDATE_PROFILE_ROUTE } from "@/utils/constants";
+import {
+  ADD_PROFILE_IMAGE_ROUTE,
+  UPDATE_PROFILE_ROUTE,
+} from "@/utils/constants";
+
 const Profile = () => {
   const navigate = useNavigate();
   const { userInfo, setUserInfo } = useAppStore();
@@ -19,65 +23,107 @@ const Profile = () => {
   const [image, setImage] = useState(null);
   const [hovered, setHovered] = useState(false);
   const [selectedColor, setSelectedColor] = useState(0);
-  const fileInputRef = useRef(null);
-  // useEffect(()=>{
-  //   if(userInfo.pro){
-  //     setFirstName(userInfo.firstName);
-  //     setLastName(userInfo.lastName);
-  //     setSelectedColor(userInfo.color);
-  //   }
-  // },[userInfo])
 
+  const fileInputRef = useRef(null);
+
+  /* ---------------- INIT FROM STORE ---------------- */
+  useEffect(() => {
+    if (userInfo) {
+      setFirstName(userInfo.firstName || "");
+      setLastName(userInfo.lastName || "");
+      setSelectedColor(userInfo.color ?? 0);
+      setImage(userInfo.image || null);
+    }
+  }, [userInfo]);
+
+  /* ---------------- VALIDATION ---------------- */
   const validateProfile = () => {
-    if (!firstName) {
+    if (!firstName.trim()) {
       toast.error("First Name is required");
       return false;
     }
-    if (!lastName) {
+    if (!lastName.trim()) {
       toast.error("Last Name is required");
       return false;
     }
     return true;
   };
+
+  /* ---------------- SAVE PROFILE ---------------- */
   const saveChanges = async () => {
-    if (validateProfile()) {
-      try {
-        const response = await apiClient.post(
-          UPDATE_PROFILE_ROUTE,
-          { firstName, lastName, color: selectedColor },
-          { withCredentials: true },
-        );
+    if (!validateProfile()) return;
 
-        if (response.status === 200) {
-          if (response.data) {
-            setUserInfo(response.data);
-            toast.success("Profile Updated Successfully");
-            navigate("/chat");
-          }
-        }
-      } catch (error) {
-        console.log(error);
+    try {
+      const response = await apiClient.post(
+        UPDATE_PROFILE_ROUTE,
+        {
+          firstName,
+          lastName,
+          color: selectedColor,
+        },
+        { withCredentials: true }
+      );
+
+      if (response.status === 200 && response.data) {
+        setUserInfo(response.data);
+        toast.success("Profile Updated Successfully");
+        navigate("/chat");
       }
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        error.response?.data?.message || "Failed to update profile"
+      );
     }
   };
 
+  /* ---------------- IMAGE UPLOAD ---------------- */
   const handleFileInputClick = () => {
-    fileInputRef.current.click();
+    fileInputRef.current?.click();
   };
+
   const handleImageChange = async (event) => {
-   
-    const file=event.target.files[0];
-    console.log(file);
-    if(file){
-      const formData=new FormData();
-      
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("profile-image", file);
+
+      const response = await apiClient.post(
+        ADD_PROFILE_IMAGE_ROUTE,
+        formData,
+        { withCredentials: true }
+      );
+
+      if (response.status === 200 && response.data.image) {
+        setUserInfo((prev) => ({
+          ...prev,
+          image: response.data.image,
+        }));
+        toast.success("Image Updated Successfully");
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => setImage(reader.result);
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to upload image");
+    } finally {
+      event.target.value = ""; // 🔥 important
     }
   };
-  const handleDeleteImage = async () => {};
+
+  const handleDeleteImage = async () => {
+    // implement if backend supports delete
+    setImage(null);
+  };
+
+  /* ---------------- UI ---------------- */
   return (
     <div className="bg-[#1b1c24] min-h-screen flex items-center justify-center">
       <div className="flex flex-col gap-10 w-[80vw] md:w-max">
-        {/* Back button */}
         <IoMdArrowBack
           onClick={() => navigate(-1)}
           className="text-4xl lg:text-6xl text-white/90 cursor-pointer"
@@ -90,28 +136,27 @@ const Profile = () => {
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
           >
-            <Avatar
-              className={`h-32 w-32 md:h-48 md:w-48 rounded-full overflow-hidden 
-              flex items-center justify-center 
-              ${getColor(selectedColor)}`}
+            <Avatar.Root
+              className={`h-32 w-32 md:h-48 md:w-48 rounded-full overflow-hidden
+              flex items-center justify-center ${getColor(selectedColor)}`}
             >
               {image ? (
-                <AvatarImage
+                <Avatar.Image
                   src={image}
                   alt="profile"
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="uppercase text-white text-5xl font-semibold">
-                  {firstName ? firstName[0] : userInfo?.email?.[0]}
-                </div>
+                <Avatar.Fallback className="uppercase text-white text-5xl font-semibold">
+                  {firstName?.[0] || userInfo?.email?.[0]}
+                </Avatar.Fallback>
               )}
-            </Avatar>
+            </Avatar.Root>
 
-            {/* Hover overlay */}
             {hovered && (
               <div
-                className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full cursor-pointer"
+                className="absolute inset-0 flex items-center justify-center
+                bg-black/50 rounded-full cursor-pointer"
                 onClick={image ? handleDeleteImage : handleFileInputClick}
               >
                 {image ? (
@@ -121,12 +166,12 @@ const Profile = () => {
                 )}
               </div>
             )}
+
             <input
               type="file"
               ref={fileInputRef}
               className="hidden"
               onChange={handleImageChange}
-              name="profile-image"
               accept=".png,.jpg,.jpeg,.svg,.webp"
             />
           </div>
@@ -153,16 +198,17 @@ const Profile = () => {
               className="rounded-lg p-4 bg-[#2c2e3b] border-none"
             />
 
-            {/* Color Picker */}
             <div className="flex gap-3 flex-wrap">
               {colors.map((color, index) => (
                 <div
                   key={index}
                   onClick={() => setSelectedColor(index)}
-                  className={`h-8 w-8 rounded-full cursor-pointer 
-                  transition-all duration-300 ${color}
+                  className={`h-8 w-8 rounded-full cursor-pointer transition-all
+                  ${color}
                   ${
-                    selectedColor === index ? " outline-2 outline-white/50" : ""
+                    selectedColor === index
+                      ? "outline-2 outline-white/50"
+                      : ""
                   }`}
                 />
               ))}
@@ -170,10 +216,10 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Save Button */}
         <Button
           onClick={saveChanges}
-          className="h-14 w-full rounded-lg bg-purple-700 hover:bg-purple-800 transition-all duration-300 text-white font-semibold"
+          className="h-14 w-full rounded-lg bg-purple-700 hover:bg-purple-800
+          transition-all duration-300 text-white font-semibold"
         >
           Save Changes
         </Button>
