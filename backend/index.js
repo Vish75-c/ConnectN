@@ -4,7 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import db from './db.js';
 import authRoutes from './routes/AuthRoutes.js';
-
+import ContactRoutes from './routes/ContactRoutes.js';
 
 dotenv.config();
 
@@ -20,12 +20,16 @@ app.use(
   })
 );
 app.use('/uploads/profiles',express.static('uploads/profiles'));
+
+
+
 app.use(cookieParser()); 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.get('/',(req,res)=>{
     res.send("Running");
 })
+app.use('/api/contacts',ContactRoutes)
 app.use('/api/auth',authRoutes);
 app.listen(port,()=>{
     console.log(`server running on the port ${port}`)
