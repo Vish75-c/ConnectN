@@ -17,7 +17,7 @@ const Chat = () => {
     }
   },[userInfo,navigate])
   return (
-    <div className='flex flex-row h-screen text-white overflow-hidden'>
+    <div className='flex h-screen text-white overflow-hidden'>
       <ContactContainer/>
       {/* <EmptyChatContainer/> */}
       <ChatContainer/>

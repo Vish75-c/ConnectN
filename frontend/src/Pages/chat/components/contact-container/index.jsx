@@ -1,9 +1,11 @@
+import Profile from '@/Pages/profile'
 import { Container } from 'lucide-react'
 import React from 'react'
+import ProfileInfo from './profile-info'
 
 const ContactContainer = () => {
   return (
-    <div className='min-w-1/2 md:min-w-0 md:w-[40vw] lg:w-[30vw] xl:w-[20vw] bg-[#1b1c24] border-r-2 border-[#2f303b] '>
+    <div className='relative md:min-w-[35vw] md:w-[40vw] lg:w-[30vw] xl:w-[20vw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full '>
       <div className='pt-3 pl-3'><PremiumLogo/></div>
       <div className='my-5 space-y-2'>
         <div className='flex items-center justify-between pr-10'>
@@ -13,6 +15,7 @@ const ContactContainer = () => {
             <h6 className='uppercase tracking-widest text-neutral-400 pl-10 font-light text-opacity-90 text-sm'>Channels</h6>
         </div>
       </div>
+      <ProfileInfo/>
     </div>
   )
 }
