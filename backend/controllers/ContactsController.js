@@ -17,7 +17,7 @@ export const searchContacts = async (req, res) => {
             }
         ]
     })
-    return res.status(200).json(contacts);
+    return res.status(200).json({contacts});
   } catch (error) {
     
     return res.status(500).send("Internal Server Error");

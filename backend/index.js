@@ -5,10 +5,11 @@ import cookieParser from 'cookie-parser';
 import db from './db.js';
 import authRoutes from './routes/AuthRoutes.js';
 import ContactRoutes from './routes/ContactRoutes.js';
+import { setupSocket } from './socket.js';
 
 dotenv.config();
 
-const app=express();
+const app=express(); 
 const port=process.env.port||3001;
 const database=process.env.DATABASE_URL;
 app.use(
@@ -31,6 +32,8 @@ app.get('/',(req,res)=>{
 })
 app.use('/api/contacts',ContactRoutes)
 app.use('/api/auth',authRoutes);
-app.listen(port,()=>{
+const server=app.listen(port,()=>{
     console.log(`server running on the port ${port}`)
 })
+
+setupSocket(server);
