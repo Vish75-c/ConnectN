@@ -1,10 +1,25 @@
 import Profile from '@/Pages/profile'
 import { Container } from 'lucide-react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import ProfileInfo from './profile-info'
 import NewDm from './new-dm'
+import apiClient from '@/lib/api'
+import { GET_DM_CONTACTS_ROUTES } from '@/utils/constants'
+import { useAppStore } from '@/store'
+import ContactList from '@/components/ContactList'
 
 const ContactContainer = () => {
+  const {setDirectMessagesContacts,directMessagesContacts}=useAppStore();
+  useEffect(()=>{
+    const getContact=async ()=>{
+      const response=await apiClient.get(GET_DM_CONTACTS_ROUTES,{withCredentials:true})
+      if(response.data.contacts){
+        console.log(response.data.contacts);
+        setDirectMessagesContacts(response.data.contacts);
+      }
+    }
+    getContact();
+  },[])
   return (
     <div className='relative w-full md:w-[40vw]  lg:w-[25vw] xl:w-[20vw] bg-[#1b1c24] border-r-2 border-[#2f303b] '>
       <div className='pt-3 pl-3'><PremiumLogo/></div>
@@ -12,6 +27,9 @@ const ContactContainer = () => {
         <div className='flex items-center justify-between pr-10'>
             <h6 className='uppercase tracking-widest text-neutral-400 pl-10 font-light text-opacity-90 text-sm'>Direct Message</h6>
             <NewDm/>
+        </div>
+        <div className='max-h-[30vh] overflow-y-auto scrollbar-hidden'>
+          <ContactList contacts={directMessagesContacts} />
         </div>
         <div className='flex items-center justify-between pr-10'>
             <h6 className='uppercase tracking-widest text-neutral-400 pl-10 font-light text-opacity-90 text-sm'>Channels</h6>

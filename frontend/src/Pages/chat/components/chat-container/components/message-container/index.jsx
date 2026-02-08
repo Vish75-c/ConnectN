@@ -1,66 +1,95 @@
 import React, { useEffect, useRef } from "react";
 import { useAppStore } from "@/store";
+import moment from "moment";
+import axios from "axios";
+import apiClient from "@/lib/api";
+import { GET_MESSAGES_ROUTE } from "@/utils/constants";
 
 const MessageContainer = () => {
   const {
-    selectedChatMessages ,
+    selectedChatMessages,
+    selectedChatData,
+    setSelectedChatMessages,
     selectedChatType,
     userInfo,
   } = useAppStore();
 
-  const bottomRef = useRef(null);
-
-  // Auto-scroll to latest message
   useEffect(() => {
-    console.log(selectedChatMessages);
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [selectedChatMessages]);
+    const getMessage=async ()=>{
+      try {
+        const response=await apiClient.post(GET_MESSAGES_ROUTE,{_id:selectedChatData._id},{withCredentials:true})
+        if(response.data.messages){
+          setSelectedChatMessages(response.data.messages);
+        }
+      
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    if(selectedChatData._id){
+      if(selectedChatType==='contact')getMessage();
+    }
+  }, [
+    selectedChatData,
+    selectedChatType,
+    setSelectedChatMessages,
+  ]);
+  const scrollRef = useRef(null);
 
-  const isOwnMessage = (message) => {
-    const senderId =
-      typeof message.sender === "object"
-        ? message.sender._id
-        : message.sender;
+  const renderMessages = () => {
+    let lastDate = null;
 
-    return senderId === userInfo?._id;
+    return selectedChatMessages.map((message, index) => {
+      const messageDate = moment(message.timestamp).format("YYYY-MM-DD");
+      const showDate = messageDate !== lastDate;
+      lastDate = messageDate;
+
+      return (
+        <div key={index}>
+          {showDate && (
+            <div className="text-center text-gray-500 my-2">
+              {moment(message.timestamp).format("LL")}
+            </div>
+          )}
+
+          {selectedChatType === "contact" && renderDmMessages(message)}
+        </div>
+      );
+    });
   };
+
+  const renderDmMessages = (message) => {
+    const isMyMessage = message.sender === userInfo._id;
+
+    return (
+      <div className={isMyMessage ? "text-right" : "text-left"}>
+        <div
+          className={`${
+            isMyMessage
+              ? "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50"
+              : "bg-[#2a2b33]/5 text-white/80 border-white/20"
+          } border inline-block p-4 rounded my-1 max-w-[50%] break-words`}
+        >
+          {message.content}
+        </div>
+
+        <div className="text-xs text-gray-600">
+          {moment(message.timestamp).format("LT")}
+        </div>
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [selectedChatMessages]);
 
   return (
     <div className="flex-1 overflow-y-auto scrollbar-hidden p-4 px-8 md:w-[65vw] lg:w-[70vw] xl:w-[65vw] w-full">
-      <div className="flex flex-col gap-3">
-        {selectedChatMessages.map((message, index) => {
-          const own = isOwnMessage(message);
-
-          return (
-            <div
-              key={message._id || index}
-              className={`flex ${own ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`max-w-[70%] rounded-xl px-4 py-2 text-sm break-words
-                  ${
-                    own
-                      ? "bg-[#8417ff] text-white rounded-br-none"
-                      : "bg-[#2a2b33] text-white rounded-bl-none"
-                  }`}
-              >
-                {message.messageTypes === "text" && (
-                  <p>{message.content}</p>
-                )}
-
-                <span className="text-[10px] opacity-60 mt-1 block text-right">
-                  {new Date(message.timestamp).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-
-        <div ref={bottomRef} />
-      </div>
+      {renderMessages()}
+      <div ref={scrollRef}></div>
     </div>
   );
 };

@@ -3,31 +3,33 @@ import { HOST } from "@/utils/constants";
 import { io } from "socket.io-client";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
-const SocketContext = createContext(null);
+const SocketContext = createContext(null);//create global socket context
 
-export const useSocket = () => useContext(SocketContext);
+export const useSocket = () => useContext(SocketContext); //access socket anywhere in the components create global socket container. Any compoent can use socket instead of passing props
 
+
+//this is wrapped inside the main body 
 export const SocketProvider = ({ children }) => {
-  const socketRef = useRef(null);
-  const [socket, setSocket] = useState(null);
+  const socketRef = useRef(null);  //store socket without re-render
+  const [socket, setSocket] = useState(null); //trigger re-render when socket ready
   const { userInfo } = useAppStore();
 
   useEffect(() => {
     if (!userInfo) return;
 
-    const s = io(HOST, {
+    const s = io(HOST, {   //connect frontend with the backend socket  server and also send userId which is used to create socketId
       withCredentials: true,
-      query: { userId: userInfo._id }, // JWT later
+      query: { userId: userInfo._id }, 
     });
 
     socketRef.current = s;
-    setSocket(s); // 🔥 THIS triggers re-render
+    setSocket(s); // THIS triggers re-render
 
     s.on("connect", () => {
       console.log("Connected to socket server");
     });
 
-    const handleReceiveMessage = (message) => {
+    const handleReceiveMessage = (message) => {  //when ever server send msg run this
       const {
         selectedChatData,
         selectedChatType,
@@ -47,7 +49,7 @@ export const SocketProvider = ({ children }) => {
 
     s.on("receiveMessage", handleReceiveMessage);
 
-    return () => {
+    return () => {  //when user logs out the listener is removed and socket is disconnected
       s.off("receiveMessage", handleReceiveMessage);
       s.disconnect();
       socketRef.current = null;
