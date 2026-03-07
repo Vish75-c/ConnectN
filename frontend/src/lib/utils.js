@@ -19,3 +19,4 @@ export const animationDefaultOptions={
 }
 export const getColor = (index) =>
   colors[index % colors.length];
+

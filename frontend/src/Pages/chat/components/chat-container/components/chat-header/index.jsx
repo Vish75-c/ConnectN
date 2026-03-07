@@ -23,7 +23,7 @@ const ChatHeader = () => {
               <Avatar.Image
                 src={`${HOST}/${selectedChatData.image}`}
                 alt="profile"
-                className="h-full w-full object-cover"
+                className="hp-full w-full object-cover"
               />
             ) : (
               <Avatar.Fallback className="uppercase text-white font-semibold">

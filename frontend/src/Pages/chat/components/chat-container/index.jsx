@@ -8,7 +8,7 @@ const ChatContainer = () => {
     <div className='fixed top-0 w-full h-screen bg-[#1c1d25] flex flex-col md:static md:flex-1'>
       <ChatHeader/>
       <MessageContainer/>
-      <MessageBar/>
+      <MessageBar className='mx-8'/>
     
     </div>
   )
