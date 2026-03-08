@@ -90,15 +90,23 @@ export const getContactFromDMList = async (req, res) => {
 
 export const getAllContacts = async (req, res) => {
     try {
-        const users=await User.find({
-            _id:{$ne:req.user}
-        },"firstNmae lastName _id")
-        const contacts=users.map((user)=>({
-            label:user.firstName?`${user.firstName} ${user.lastName}`:user.email,
-        }))
+        // 1. Added "email" to the projection so you can actually use it
+        const users = await User.find({
+            _id: { $ne: req.user }
+        }, "firstName lastName _id email"); 
+
+        // 2. Map BOTH label and value
+        const contacts = users.map((user) => ({
+            label: user.firstName 
+                ? `${user.firstName} ${user.lastName}` 
+                : user.email,
+            value: user._id, // <--- THIS WAS MISSING
+        }));
+
+        console.log("Contacts being sent:", contacts);
         return res.status(200).json({ contacts });
     } catch (error) {
-
+        console.error(error);
         return res.status(500).send("Internal Server Error");
     }
 };
