@@ -18,3 +18,7 @@ export const GET_ALL_CONTACTS_ROUTE=`${CONTACT_ROUTE}/get-all-contacts`
 
 export const MESSAGES_ROUTE=`api/messages`;
 export const GET_MESSAGES_ROUTE=`${MESSAGES_ROUTE}/get-messages`
+
+
+export const CHANNEL_ROUTE='api/channel';
+export const CREATE_CHANNEL_ROUTE=`${CHANNEL_ROUTE}/create-channel`

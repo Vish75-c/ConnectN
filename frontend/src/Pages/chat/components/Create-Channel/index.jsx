@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import apiClient from "@/lib/api";
-import { GET_ALL_CONTACTS_ROUTE } from "@/utils/constants";
+import { CREATE_CHANNEL_ROUTE,GET_ALL_CONTACTS_ROUTE } from "@/utils/constants";
 import { Button } from "@/components/ui/button";
 import MultipleSelector from "@/components/ui/multiselect";
 import Lottie from "react-lottie";
