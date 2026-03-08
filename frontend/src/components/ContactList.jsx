@@ -1,21 +1,23 @@
 import { useAppStore } from "@/store";
-import React from "react";
+import React, { useEffect } from "react";
 import * as Avatar from "@radix-ui/react-avatar";
 import { HOST } from "@/utils/constants";
 import { getColor } from "@/lib/utils";
 
-const ContactList = ({ contacts, isChannel = false }) => {
+const ContactList = ({ contacts, isChannel}) => {
   const {
     selectedChatData,
     setSelectedChatData,
     setSelectedChatType,
     setSelectedChatMessages,
+    setChannel,
   } = useAppStore();
-
+  useEffect(()=>{
+    console.log(contacts,"CHannellisgt",isChannel);
+  },[])
   const handleClick = (contact) => {
     const type = isChannel ? "channel" : "contact";
     setSelectedChatType(type);
-
     // clear messages if switching chat
     if (!selectedChatData || selectedChatData._id !== contact._id) {
       setSelectedChatMessages([]);
@@ -28,8 +30,9 @@ const ContactList = ({ contacts, isChannel = false }) => {
     <div className="mt-5">
       {contacts.map((contact) => {
         const isSelected = selectedChatData?._id === contact._id;
-
+        
         return (
+          
           <div
             key={contact._id}
             onClick={() => handleClick(contact)}

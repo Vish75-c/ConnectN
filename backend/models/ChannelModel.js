@@ -1,30 +1,47 @@
 import mongoose from 'mongoose'
-const channelSchema=new mongoose.Schema({
+
+const channelSchema = new mongoose.Schema({
     name:{
         type:String,
         required:true,
     },
+
     members:[
-        {type:mongoose.Schema.ObjectId,ref:"User",required:true}
+        { type: mongoose.Schema.Types.ObjectId, ref:"User", required:true }
     ],
-    admin:{type:mongoose.Schema.ObjectId,ref:"User",required:true},
-    messages:[{type:mongoose.Schema.ObjectId,ref:"Messages",required:false}],
+
+    admin:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:"User",
+        required:true
+    },
+
+    messages:[
+        { type: mongoose.Schema.Types.ObjectId, ref:"Messages" }
+    ],
+
     createdAt:{
         type:Date,
-        default:Date.now()
+        default:Date.now
     },
-    updateAt:{
+
+    updatedAt:{
         type:Date,
-        default:Date.now()
-    },
+        default:Date.now
+    }
+
 })
 
-channelSchema.pre("save",function(){
-    this.updatedAt=Date.now();
-})
-channelSchema.pre('findOneAndUpdate',function(){
-    this.set({updatedAt:Date.now()})
+channelSchema.pre("save", function(){
+    this.updatedAt = Date.now();
+    
 })
 
-const channel=mongoose.model("Channels",channelSchema);
-export default channel;
+channelSchema.pre("findOneAndUpdate", function(){
+    this.set({ updatedAt: Date.now() })
+    
+})
+
+const Channel = mongoose.model("Channel", channelSchema)
+
+export default Channel

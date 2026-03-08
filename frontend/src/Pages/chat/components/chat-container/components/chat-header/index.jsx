@@ -4,7 +4,7 @@ import { RiCloseFill } from "react-icons/ri";
 import * as Avatar from "@radix-ui/react-avatar";
 import { getColor } from "@/lib/utils";
 const ChatHeader = () => {
-  const { closeChat, selectedChatData,selectedChatType } = useAppStore();
+  const { closeChat, selectedChatData,selectedChatType,channel } = useAppStore();
   const handleCloseChat = () => {
     console.log("VIsited");
     closeChat();
@@ -39,6 +39,12 @@ const ChatHeader = () => {
             </span>
           </div>
         </div>}
+        {selectedChatType==='channel'&&<div className="flex items-center gap-3">
+          <div className="bg-[#ffffff22] h-10 w-10 flex items-center justify-center rounded-full">
+                    #
+                  </div>
+                  <span>{selectedChatData.name}</span>
+          </div>}
         <div className="flex items-center justify-center">
           <button
             onClick={handleCloseChat}

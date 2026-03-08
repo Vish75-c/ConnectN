@@ -103,7 +103,6 @@ export const getAllContacts = async (req, res) => {
             value: user._id, // <--- THIS WAS MISSING
         }));
 
-        console.log("Contacts being sent:", contacts);
         return res.status(200).json({ contacts });
     } catch (error) {
         console.error(error);

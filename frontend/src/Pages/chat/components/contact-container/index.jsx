@@ -4,13 +4,24 @@ import React, { useEffect } from 'react'
 import ProfileInfo from './profile-info'
 import NewDm from './new-dm'
 import apiClient from '@/lib/api'
-import { GET_DM_CONTACTS_ROUTES } from '@/utils/constants'
+import { GET_ALL_CONTACTS_ROUTE, GET_CHANNELS_ROUTE, GET_DM_CONTACTS_ROUTES } from '@/utils/constants'
 import { useAppStore } from '@/store'
 import ContactList from '@/components/ContactList'
 import CreateChannel from '../Create-Channel'
 
 const ContactContainer = () => {
-  const {setDirectMessagesContacts,directMessagesContacts}=useAppStore();
+  const {setDirectMessagesContacts,directMessagesContacts,channels,setChannels}=useAppStore();
+  useEffect(()=>{
+    const getContacts=async ()=>{
+      const response=await apiClient.get(GET_CHANNELS_ROUTE,{withCredentials:true});
+      console.log(response,"VISITED");
+      
+      if(response.data.channels){
+        setChannels(response.data.channels);
+      }
+    }
+  getContacts();
+  },[]);
   useEffect(()=>{
     const getContact=async ()=>{
       const response=await apiClient.get(GET_DM_CONTACTS_ROUTES,{withCredentials:true})
@@ -29,12 +40,15 @@ const ContactContainer = () => {
             <h6 className='uppercase tracking-widest text-neutral-400 pl-10 font-light text-opacity-90 text-sm'>Direct Message</h6>
             <NewDm/>
         </div>
-        <div className='max-h-[30vh] overflow-y-auto scrollbar-hidden'>
-          <ContactList contacts={directMessagesContacts} />
+        <div className='max-h-[50vh] overflow-y-auto scrollbar-hidden'>
+          <ContactList contacts={directMessagesContacts} isChannel={false} />
         </div>
         <div className='flex items-center justify-between pr-10'>
             <h6 className='uppercase tracking-widest text-neutral-400 pl-10 font-light text-opacity-90 text-sm'>Channels</h6>
             <CreateChannel/>
+        </div>
+        <div className='max-h-[50vh] overflow-y-auto scrollbar-hide'>
+          <ContactList contacts={channels} isChannel={true} />
         </div>
       </div>
       <ProfileInfo/>

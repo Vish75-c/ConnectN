@@ -22,3 +22,4 @@ export const GET_MESSAGES_ROUTE=`${MESSAGES_ROUTE}/get-messages`
 
 export const CHANNEL_ROUTE='api/channel';
 export const CREATE_CHANNEL_ROUTE=`${CHANNEL_ROUTE}/create-channel`
+export const GET_CHANNELS_ROUTE=`${CHANNEL_ROUTE}/get-channels`

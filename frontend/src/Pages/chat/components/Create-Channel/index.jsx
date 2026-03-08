@@ -39,6 +39,8 @@ const CreateChannel = () => {
       if (response.status === 201 || response.status === 200) {
         setnewChannelModel(false);
         addChannel(response.data.channel);
+        setChannelName("");
+        setAllContacts([]);
       }
     }
   };

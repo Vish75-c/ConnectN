@@ -1,6 +1,6 @@
 import channel from "../models/ChannelModel.js";
 import User from "../models/UserModel.js";
-
+import mongoose from "mongoose";
 export const createChannel=async (req,res)=>{
     try {
         const {name,members}=req.body;
@@ -13,15 +13,32 @@ export const createChannel=async (req,res)=>{
         if(validMembers.length!==members.length){
             return res.status(400).send("Some member are not valid users");
         }
+        
         const newChannel=new channel({
             name,
             members,
             admin:userId,
 
         })
-        await newChannel();
+        await newChannel.save();
         return res.status(200).json({channel:newChannel});
     } catch (error) {
+        console.log(error);
         return res.status(500).send("Internal Server Error");
+    }
+}
+
+export const getUserChannels=async (req,res)=>{
+    try {
+        
+        const userId=new mongoose.Types.ObjectId(req.user);
+        const channels=await channel.find({
+            $or:[{admin:userId},{members:userId}]
+        }).sort({updatedAt:-1});
+
+        return res.status(200).json({channels});
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send("Internal Server error");
     }
 }
