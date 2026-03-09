@@ -53,6 +53,7 @@ const MessageContainer = () => {
           )}
 
           {selectedChatType === "contact" && renderDmMessages(message)}
+          {selectedChatType==='channel'&&renderChannelMessages(message)}
         </div>
       );
     });
@@ -79,7 +80,35 @@ const MessageContainer = () => {
       </div>
     );
   };
+  const renderChannelMessages = (message) => {
+  const isMyMessage = message.sender._id === userInfo._id;
 
+  return (
+    <div className={`flex ${isMyMessage ? "justify-end" : "justify-start"} my-2`}>
+      <div className="max-w-[60%]">
+        {!isMyMessage && (
+          <div className="text-xs text-white/60 mb-1">
+            {message.sender.firstName} {message.sender.lastName}
+          </div>
+        )}
+
+        <div
+          className={`${
+            isMyMessage
+              ? "bg-[#8417ff]/10 text-[#8417ff] border-[#8417ff]/40"
+              : "bg-[#2a2b33]/10 text-white border-white/20"
+          } border px-4 py-2 rounded-lg`}
+        >
+          {message.content}
+        </div>
+
+        <div className="text-[10px] text-gray-500 mt-1 text-right">
+          {moment(message.timestamp).format("LT")}
+        </div>
+      </div>
+    </div>
+  );
+}
   useEffect(() => {
   if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
