@@ -51,6 +51,14 @@ const MessageBar = () => {
         messageTypes: "text",
         fileUrl: undefined,
       });
+    }else if(selectedChatType==='channel'){
+      socket.emit("send-channel-message",{
+        send:userInfo._id,
+        content:message,
+        messageType:"text",
+        fileUrl:undefined,
+        channelId:selectedChatData._id
+      })
     }
 
     setMessage("");
