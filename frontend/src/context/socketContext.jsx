@@ -47,13 +47,14 @@ export const SocketProvider = ({ children }) => {
       }
     };
     const handleReceiveChannelMessage=(message)=>{
+      console.log(message);
       const {selectedChatData,selectedChatType,addMessage}=useAppStore.getState();
       if(selectedChatType!==undefined&&selectedChatData._id===message.channelId){
         addMessage(message);
       }
     }
     s.on("receiveMessage", handleReceiveMessage);
-    s.on("recieve-channel-message",handleReceiveChannelMessage);
+    s.on("receive-channel-message",handleReceiveChannelMessage);
     return () => {  //when user logs out the listener is removed and socket is disconnected
       s.off("receiveMessage", handleReceiveMessage);
       s.off("receive-channel-message",handleReceiveChannelMessage);
