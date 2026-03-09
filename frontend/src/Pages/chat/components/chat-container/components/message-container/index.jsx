@@ -3,7 +3,7 @@ import { useAppStore } from "@/store";
 import moment from "moment";
 import axios from "axios";
 import apiClient from "@/lib/api";
-import { GET_MESSAGES_ROUTE } from "@/utils/constants";
+import { GET_CHANNEL_MESSAGE, GET_MESSAGES_ROUTE } from "@/utils/constants";
 
 const MessageContainer = () => {
   const {
@@ -26,8 +26,22 @@ const MessageContainer = () => {
         console.log(error);
       }
     }
+    const getChannelMessage=async ()=>{
+      try {
+        const response=await apiClient.get(
+          `${GET_CHANNEL_MESSAGE}/${selectedChatData._id}`,
+          {withCredentials:true}
+        )
+        if(response.status===200&&response.data.messages){
+          setSelectedChatMessages(response.data.messages);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
     if(selectedChatData._id){
       if(selectedChatType==='contact')getMessage();
+      if(selectedChatType==='channel')getChannelMessage();
     }
   }, [
     selectedChatData,
